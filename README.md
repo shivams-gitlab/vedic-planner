@@ -1,2 +1,2 @@
 # vedic-planner
-hora-viewer-v43-claude
+hora-viewer-v45-claude
