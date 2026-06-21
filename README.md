@@ -1,2 +1,2 @@
 # vedic-planner
-hora-viewer-v47
+hora-viewer-v50 with new function deployed
