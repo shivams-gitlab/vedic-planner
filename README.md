@@ -1,2 +1,2 @@
 # vedic-planner
-hora-viewer-v52
+hora-viewer-v54
