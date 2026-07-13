@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9DDZ1FT2TC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-9DDZ1FT2TC');
+</script>  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vedic Planner — Electional Astrology/Muhurta</title>
@@ -3688,7 +3696,7 @@ function refreshYogaDropdownIfOpen() {
 // ayanamsa change, and Today button. Deduped by "YYYY-MM" key so rapid
 // navigation never fires duplicate requests for the same month.
 
-const MONTH_PANCHANGA_ENDPOINT = 'https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/staging-month-panchanga';
+const MONTH_PANCHANGA_ENDPOINT = 'https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/month-panchanga-engine';
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5ZW1vaGp2bnZtam14cXZhcXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzM1MzQsImV4cCI6MjA5NTgwOTUzNH0.f_57Eo1OUZ4gjOtKVZrvXEHuuhIubzRzxZqcgpmtEOI";
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -3791,7 +3799,7 @@ async function fetchSupabaseAstroData() {
   // and calls window._drawRasiChart() when it resolves to refresh with Supabase data.
 
   const PROJECT_ID = "https://vyemohjvnvmjmxqvaqwd.supabase.co";
-  const ENDPOINT   = `https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/astro-engine`;
+  const ENDPOINT   = `https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/positionsWithRetro-api`;
 
   try {
     const response = await fetch(ENDPOINT, {
