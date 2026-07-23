@@ -1,2 +1,2 @@
 # vedic-planner
-hora-viewer-v65
+v67-transits, time commented
