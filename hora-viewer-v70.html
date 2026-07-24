@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9DDZ1FT2TC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-9DDZ1FT2TC');
+</script>  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vedic Planner — Electional Astrology/Muhurta</title>
+<title>Hora Vedic Planner — Electional Astrology/Muhurta</title>
 <style>
   :root {
     --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -1635,9 +1643,9 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-brand" style="text-decoration:none; cursor:pointer;" title="Vedic Planner — Home">
+  <a href="index.html" class="nav-brand" style="text-decoration:none; cursor:pointer;" title="Hora Vedic Planner — Home">
     <div class="brandmark"><!--☽--></div>
-    <span>Vedic Planner</span>
+    <span>Hora Vedic Planner</span>
   </a>
 
   <button id="todayBtn">Today</button>
@@ -1786,9 +1794,9 @@
   <!-- SIDEREAL CHART PANEL -->
   <div class="rasi-chart-wrap" id="rasiChartWrap">
     <div class="rasi-chart-header">
-      <div class="rasi-chart-title">
+      <!--<div class="rasi-chart-title">
         <span>Sidereal Horoscope</span>
-      </div>
+      </div>-->
       <div class="chart-style-toggle" id="chartStyleToggle">
         <button type="button" class="chart-style-opt" data-style="north">North</button>
         <span class="chart-style-sep">|</span>
@@ -1824,12 +1832,12 @@
       </details>
 
       <details style="background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 10px; cursor: pointer;">
-        <summary style="font-weight: 600; font-size: 0.9rem; color: var(--text);">How does Vedic Planner data differ from data on other softwares?</summary>
-        <p style="font-size: 0.85rem; color: var(--text2); margin-top: 6px; line-height: 1.4;">Vedic Planner is a free to use tool and is being designed to remain free forever. Paid softwares use Swiss Ephemeris which requires licensing fees but Vedic Planner uses open source astronomical libraries for our calculations which is accurate within sub-arcminute of Swiss Ephemeris for 100 year span.</p>
+        <summary style="font-weight: 600; font-size: 0.9rem; color: var(--text);">How does Hora Vedic Planner data differ from data on other softwares?</summary>
+        <p style="font-size: 0.85rem; color: var(--text2); margin-top: 6px; line-height: 1.4;">Hora Vedic Planner is a free to use tool and is being designed to remain free forever. Paid softwares use Swiss Ephemeris which requires licensing fees but Hora Vedic Planner uses open source astronomical libraries for our calculations which is accurate within sub-arcminute of Swiss Ephemeris for 100 year span.</p>
       </details>
 
       <details style="background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 10px; cursor: pointer;">
-        <summary style="font-weight: 600; font-size: 0.9rem; color: var(--text);">What is the definition of sunrise and sunset used in Vedic Planner?</summary>
+        <summary style="font-weight: 600; font-size: 0.9rem; color: var(--text);">What is the definition of sunrise and sunset used in Hora Vedic Planner?</summary>
         <p style="font-size: 0.85rem; color: var(--text2); margin-top: 6px; line-height: 1.4;">For calculation purposes, sunrise and sunset tracks the moment the upper rim of the sun is tangent to an unobstructed horizon at sea level.</p>
       </details>        
      
@@ -4199,7 +4207,7 @@ function refreshTransitDropdownIfOpen() {
 // ayanamsa change, and Today button. Deduped by "YYYY-MM" key so rapid
 // navigation never fires duplicate requests for the same month.
 
-const MONTH_PANCHANGA_ENDPOINT = 'https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/staging-month-panchanga';
+const MONTH_PANCHANGA_ENDPOINT = 'https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/month-panchanga-engine';
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5ZW1vaGp2bnZtam14cXZhcXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzM1MzQsImV4cCI6MjA5NTgwOTUzNH0.f_57Eo1OUZ4gjOtKVZrvXEHuuhIubzRzxZqcgpmtEOI";
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -4311,7 +4319,7 @@ async function fetchSupabaseAstroData() {
   // and calls window._drawRasiChart() when it resolves to refresh with Supabase data.
 
   const PROJECT_ID = "https://vyemohjvnvmjmxqvaqwd.supabase.co";
-  const ENDPOINT   = `https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/astro-engine`;
+  const ENDPOINT   = `https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/positionsWithRetro-api`;
 
   try {
     const response = await fetch(ENDPOINT, {
