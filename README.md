@@ -1,3 +1,5 @@
 # vedic-planner
-v86-gatedG-calSync: to be discarded later for stable v85 once testing complete
-v70
+stable v85
+
+v86-gatedG-calSync: discarded 
+v70 prior to g-cal
