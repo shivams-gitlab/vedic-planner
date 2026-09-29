@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy Policy-Hora Vedic Planner</title>
+<style>
+  :root {
+    --bg: #f5efe0;
+    --card: #fffdf7;
+    --border: #e0d3ae;
+    --indigo: #1e1b4b;
+    --indigo2: #2a2570;
+    --gold: #d4a017;
+    --gold-light: #f0d888;
+    --text: #2c2410;
+    --text2: #5c5030;
+    --text3: #8a7d55;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  header {
+    background: var(--indigo);
+    padding: 1.5rem 1.5rem;
+    border-bottom: 1px solid #3a3470;
+  }
+  .brand {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.03em;
+  }
+  .brandmark {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+  h1 {
+    font-size: 1.9rem;
+    margin: 0 0 0.3rem;
+    color: var(--text);
+  }
+  .updated {
+    color: var(--text3);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.15rem;
+    margin: 2.2rem 0 0.7rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+  }
+  p, li { color: var(--text2); font-size: 0.97rem; }
+  ul { padding-left: 1.3rem; }
+  li { margin-bottom: 0.4rem; }
+  .box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    margin: 1rem 0;
+  }
+  .placeholder {
+    background: #fff3d6;
+    color: #8a5a00;
+    padding: 0 4px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  a { color: #6b4f00; }
+  footer {
+    text-align: center;
+    color: var(--text3);
+    font-size: 0.8rem;
+    padding: 2rem 1.5rem 3rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><div class="brandmark"></div> Hora Vedic Planner</div>
+</header>
+
+<main>
+  <h1>Privacy Policy</h1>
+  <div class="updated">Last updated: <span class="placeholder">Sep, 2026</span></div>
+
+  <p>
+    Hora Vedic Planner ("the app", "we", "us") is a Jyotish (Vedic astrology)
+    planning tool that shows horā periods, pañcāṅga data, and lets you
+    optionally schedule your own events and sync them with your Google
+    Calendar. This policy explains what information the app accesses, how it
+    is used, and how it is stored.
+  </p>
+
+  <h2>1. Information we access</h2>
+  <p>The app can access the following, only with your explicit action:</p>
+  <ul>
+    <li><strong>Location you enter</strong>-a city or coordinates you search for, used solely to calculate sunrise/sunset and horā timings for that place.</li>
+    <li><strong>Events you create in the app</strong>-title, description, time, and color you choose to schedule.</li>
+    <li><strong>Google Calendar events</strong>-only if you click "Connect Calendar" and grant permission. See Section 2 for exactly what this covers.</li>
+  </ul>
+  <p>We do not require an account, and we do not collect your name, email address, or any other personal identifier to use the core features of the app.</p>
+
+  <h2>2. Google Calendar integration</h2>
+  <p>
+    If you choose to connect Google Calendar, the app requests the
+    <code>calendar.events</code> OAuth scope. This scope permits the app to
+    read and create/modify events on your Google Calendar-it does not grant
+    access to your other Google data (Gmail, Drive, Contacts, etc.), and it
+    does not permit changing your calendar's settings or sharing/deleting the
+    calendar itself.
+  </p>
+  <p>This access is used only to:</p>
+  <ul>
+    <li>Create events on your calendar for astrological items you choose to schedule in the app;</li>
+    <li>Read your existing Google Calendar events so the app can display them alongside your horā schedule.</li>
+  </ul>
+  <div class="box">
+    <strong>No server-side storage of your Google data.</strong> The app is
+    client-side only. Your Google access token is held in your browser's
+    memory for the duration of your session and is never sent to or stored
+    on any server we operate. We do not have a backend database of your
+    Google Calendar data. When you close the tab or your session expires,
+    the token is gone; you simply reconnect next time you want to sync.
+  </div>
+  <p>
+    You can revoke the app's access to your Google Calendar at any time from
+    your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions page</a>,
+    or by using the "Disconnect" option inside the app.
+  </p>
+  <p>
+    Hora Vedic Planner's use and transfer of information received from
+    Google APIs adheres to the
+    <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>,
+    including the Limited Use requirements.
+  </p>
+
+  <h2>3. Local data storage</h2>
+  <p>
+    Events you create, your chart-style preference, your default location,
+    and similar settings are stored using your browser's local storage-on
+    your own device only. This data is never transmitted to any server we
+    control. Clearing your browser data, or using a different browser or
+    device, will remove it.
+  </p>
+
+  <h2>4. Astrological calculations</h2>
+  <p>
+    Pañcāṅga and planetary-position calculations are performed using
+    ephemeris data and, for some calculations, a request to our calculation
+    service (Supabase Edge Functions) containing only the date, time, and
+    location needed to compute the result-not any personal identifier.
+  </p>
+
+  <h2>5. What we do not do</h2>
+  <ul>
+    <li>We do not sell, rent, or share your data with advertisers or third parties.</li>
+    <li>We do not use your Google Calendar data for advertising purposes.</li>
+    <li>We do not use Google user data to train generalized AI/ML models.</li>
+    <li>We do not track you across other websites or apps.</li>
+  </ul>
+
+  <h2>6. Children's privacy</h2>
+  <p>
+    The app is not directed at children under 13, and we do not knowingly
+    collect information from them.
+  </p>
+
+  <h2>7. Changes to this policy</h2>
+  <p>
+    If this policy changes, the "Last updated" date above will be revised.
+    Continued use of the app after a change constitutes acceptance of the
+    updated policy.
+  </p>
+
+  <h2>8. Contact</h2>
+  <p>
+    Questions about this policy or your data can be sent to us from
+    <span class="placeholder">Support</span>page.
+  </p>
+</main>
+
+<footer>Hora Vedic Planner-Privacy Policy</footer>
+
+</body>
+</html>
