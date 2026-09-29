@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9DDZ1FT2TC"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-9DDZ1FT2TC');
-</script>  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hora Vedic Planner — Electional Astrology/Muhurta</title>
@@ -254,8 +246,11 @@
     display: grid;
     /* Calendar flexes between 340–440px, chart flexes between 260–290px —
        both absorb width pressure first. Hora panel has a protected 320px
-       floor (never crushed) and grows with 1fr on wide screens. */
-    grid-template-columns: minmax(340px, 440px) minmax(320px, 1fr) minmax(260px, 290px);
+       floor (never crushed) and grows with 1fr on wide screens.
+       Sizes are in rem (340/440/320/260/290 ÷ 16) so that when the compact
+       desktop tier below shrinks the root font size, the columns keep the
+       same proportions instead of the hora panel being squeezed. */
+    grid-template-columns: minmax(21.25rem, 27.5rem) minmax(20rem, 1fr) minmax(16.25rem, 18.125rem);
     gap: 1.25rem;
     max-width: 1440px;
     margin: 0 auto;
@@ -612,7 +607,7 @@
     font-weight: 600;
   }
   .cal-day {
-    min-height: 72px;
+    min-height: 4.5rem;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -1700,6 +1695,33 @@
     text-align: center;
     color: var(--text3);
     font-size: 0.9rem;
+  }
+
+  /* COMPACT DESKTOP (≈1041–1284px wide, e.g. a laptop at 100% browser zoom
+     with Windows display scaling). At full size the nav needs ~1180px and
+     the three columns ~1020px, so in this range the nav buttons spilled
+     past the nav background and the hora panel got crushed. Rather than
+     re-flowing, scale the whole UI down smoothly with the viewport: the
+     root font size shrinks (1284px → 16px, 1041px → ~13px) so everything
+     sized in rem follows, and the few px-sized pieces get rem equivalents.
+     At 1285px and up nothing changes; at 1040px and below the existing
+     mobile/tablet layout takes over. */
+  @media (min-width: 1041px) and (max-width: 1284px) {
+    html { font-size: clamp(12.5px, 1.246vw, 16px); }
+    body { font-size: 1rem; }
+    nav { height: 3.5rem; }
+    .nav-brand .brandmark { width: 1.625rem; height: 1.625rem; }
+    #locationInput { width: 12.5rem; }
+    .gcal-btn { font-size: 0.8125rem; padding: 5px 0.8125rem; }
+    .gcal-btn svg { width: 0.9375rem; height: 0.9375rem; }
+    .calendar-card { top: 4.5rem; }
+    .hora-panel,
+    .rasi-chart-wrap {
+      top: 4.5rem;
+      height: calc(100vh - 3.5rem - 4rem);
+    }
+    .hora-sun-times .label { font-size: 0.625rem; }
+    .hora-planet-badge { width: 1.875rem; height: 1.875rem; }
   }
 
   /* RESPONSIVE */
@@ -4671,6 +4693,26 @@ function syncPanelHeight() {
   });
 }
 
+// Keep the hora/chart panels matched to the calendar height when the window is
+// resized — the compact desktop tier rescales the UI continuously with the
+// viewport width, so the calendar's height changes as it's resized. Below the
+// single-column breakpoint, drop the inline heights so the CSS `height:auto`
+// applies (an inline height set at desktop width would otherwise stick).
+let _panelResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_panelResizeTimer);
+  _panelResizeTimer = setTimeout(() => {
+    if (window.innerWidth > 1040) {
+      syncPanelHeight();
+    } else {
+      const p = document.getElementById('horaPanel');
+      const c = document.getElementById('rasiChartWrap');
+      if (p) p.style.height = '';
+      if (c) c.style.height = '';
+    }
+  }, 100);
+});
+
 // ─── SCHEDULE BUTTON ──────────────────────────────────────────────────────────
 document.getElementById('scheduleBtn').addEventListener('click', toggleScheduleView);
 
@@ -5315,7 +5357,7 @@ function refreshTransitDropdownIfOpen() {
 // ayanamsa change, and Today button. Deduped by "YYYY-MM" key so rapid
 // navigation never fires duplicate requests for the same month.
 
-const MONTH_PANCHANGA_ENDPOINT = 'https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/month-panchanga-engine';
+const MONTH_PANCHANGA_ENDPOINT = 'https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/staging-month-panchanga';
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5ZW1vaGp2bnZtam14cXZhcXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzM1MzQsImV4cCI6MjA5NTgwOTUzNH0.f_57Eo1OUZ4gjOtKVZrvXEHuuhIubzRzxZqcgpmtEOI";
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -5427,7 +5469,7 @@ async function fetchSupabaseAstroData() {
   // and calls window._drawRasiChart() when it resolves to refresh with Supabase data.
 
   const PROJECT_ID = "https://vyemohjvnvmjmxqvaqwd.supabase.co";
-  const ENDPOINT   = `https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/positionsWithRetro-api`;
+  const ENDPOINT   = `https://vyemohjvnvmjmxqvaqwd.supabase.co/functions/v1/astro-engine`;
 
   try {
     const response = await fetch(ENDPOINT, {
