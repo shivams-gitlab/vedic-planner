@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9DDZ1FT2TC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-9DDZ1FT2TC');
+</script>  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hora Vedic Planner — Electional Astrology/Muhurta</title>
@@ -398,6 +406,10 @@
     text-align: center;
   }
   .cal-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.35em;
     font-family: var(--font-sans);
     font-size: 1.20rem;
     font-weight: 600;
@@ -405,6 +417,28 @@
     text-align: center;
     white-space: nowrap;
   }
+  /* Month/year jump-to dropdowns — styled to read as plain title text until
+     hovered/focused, rather than looking like ordinary form controls. */
+  .cal-title-select {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 1px 3px;
+    cursor: pointer;
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+  .cal-title-select:hover,
+  .cal-title-select:focus {
+    background: var(--bg2);
+    border-color: var(--border);
+    outline: none;
+  }
+  #calYearSelect { font-variant-numeric: tabular-nums; }
   .cal-nav-btn {
     background: none;
     border: 1px solid var(--border);
@@ -2157,7 +2191,10 @@
       <!-- Row 1: Month title + nav arrows -->
       <div class="cal-header-row1">
         <div></div><!-- spacer -->
-        <div class="cal-title" id="calTitle"></div>
+        <div class="cal-title">
+          <select class="cal-title-select" id="calMonthSelect" title="Jump to month"></select>
+          <select class="cal-title-select" id="calYearSelect" title="Jump to year"></select>
+        </div>
         <div class="cal-header-right">
           <button class="cal-nav-btn" id="prevMonth">&#8249;</button>
           <button class="cal-nav-btn" id="nextMonth">&#8250;</button>
@@ -2408,10 +2445,47 @@ function saveEvents() {
 // ─── GOOGLE CALENDAR INTEGRATION (GIS implicit token flow) ───────────────────
 // Architecture: access token in memory only, GIS handles silent re-auth,
 // no token ever written to localStorage, no backend involved.
+//
+// One deliberate, narrow exception: the account's EMAIL ADDRESS (not the
+// token, not any calendar data) is cached in localStorage as a "login hint"
+// so a silent reconnect on page load can target the same Google account the
+// person used last time, instead of Chrome's account chooser popping up
+// whenever more than one Google session is active in the browser. See
+// _loadGcalHint/_saveGcalHint/_clearGcalHint below. The hint is only ever
+// used for the silent (prompt='') request — the interactive "Connect
+// Calendar" button still always shows the full account chooser.
 
 const GCAL_CLIENT_ID = '835516411712-fmvnjehg251rbo763prm4f6ek7cq9ia8.apps.googleusercontent.com'; // ← replace
-const GCAL_SCOPE     = 'https://www.googleapis.com/auth/calendar.events';
+// 'email' is a non-sensitive scope (no extra Google verification burden) —
+// added solely so we can ask Google which account just signed in, to save
+// as the login hint above.
+const GCAL_SCOPE     = 'https://www.googleapis.com/auth/calendar.events email';
 const GCAL_SOURCE    = 'vedicplanner'; // extendedProperties tag on all our events
+const GCAL_HINT_KEY  = 'horadarpan_gcal_hint';
+
+function _loadGcalHint() {
+  try { return localStorage.getItem(GCAL_HINT_KEY) || ''; } catch { return ''; }
+}
+function _saveGcalHint(email) {
+  try { if (email) localStorage.setItem(GCAL_HINT_KEY, email); } catch {}
+}
+function _clearGcalHint() {
+  try { localStorage.removeItem(GCAL_HINT_KEY); } catch {}
+}
+
+// Best-effort: ask Google which account the current token belongs to, and
+// remember it as the hint for next time. Never throws — a failure here just
+// means the next silent reconnect may fall back to showing the chooser.
+async function _refreshGcalHint(token) {
+  try {
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.email) _saveGcalHint(data.email);
+  } catch { /* non-fatal */ }
+}
 
 let _gcalToken     = null;  // access token — memory only
 let _gcalTokenExp  = 0;     // expiry epoch ms
@@ -2450,6 +2524,10 @@ function _requestToken(prompt = '') {
   return new Promise((resolve, reject) => {
     if (!_tokenClient) { reject(new Error('GIS not loaded')); return; }
     const expectedState = _generateGcalState();
+    // Only bias the SILENT request toward the previously-used account. The
+    // interactive "Connect Calendar" button (prompt='consent') intentionally
+    // never sends a hint, so it always shows every signed-in Google account.
+    const hint = prompt === '' ? _loadGcalHint() : '';
     _tokenClient.callback = (resp) => {
       if (resp.error) { reject(new Error(resp.error)); return; }
       // Reject any response that doesn't carry back the exact state value
@@ -2460,9 +2538,12 @@ function _requestToken(prompt = '') {
       }
       _gcalToken    = resp.access_token;
       _gcalTokenExp = Date.now() + resp.expires_in * 1000;
+      _refreshGcalHint(_gcalToken); // remember/update which account this was, for next time
       resolve();
     };
-    _tokenClient.requestAccessToken({ prompt, state: expectedState });
+    const overrideConfig = { prompt, state: expectedState };
+    if (hint) overrideConfig.hint = hint;
+    _tokenClient.requestAccessToken(overrideConfig);
   });
 }
 
@@ -2547,6 +2628,7 @@ function gcalDisconnect() {
   _gcalToken     = null;
   _gcalTokenExp  = 0;
   _gcalConnected = false;
+  _clearGcalHint(); // forget the saved account too — a full disconnect shouldn't silently re-target it next load
   // Remove gcal events from state (keep local ones)
   state.events = state.events.filter(ev => !ev.gcalId);
   saveEvents();
@@ -3329,7 +3411,7 @@ document.querySelectorAll('input[name=ayanamsa]').forEach(radio => {
 function renderCalendar() {
   const { viewYear, viewMonth } = state;
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calTitle').textContent = `${months[viewMonth]} ${viewYear}`;
+  _syncCalTitleSelects(viewYear, viewMonth);
 
   const grid = document.getElementById('calGrid');
   const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -4777,9 +4859,10 @@ document.getElementById('todayBtn').addEventListener('click', () => {
 });
 
 // ─── CALENDAR NAV ─────────────────────────────────────────────────────────────
-document.getElementById('prevMonth').addEventListener('click', () => {
-  state.viewMonth--;
-  if (state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
+// Shared "the visible month changed" refresh — used by the prev/next arrows
+// AND by the month/year jump-to dropdowns, so every entry point into
+// changing state.viewYear/viewMonth stays in sync the same way.
+function _afterCalendarMonthChange() {
   renderCalendar();
   syncPanelHeight();
   refreshYogaDropdownIfOpen();
@@ -4789,20 +4872,73 @@ document.getElementById('prevMonth').addEventListener('click', () => {
     renderScheduleView();
     if (_gcalConnected) _loadGcalEventsForMonth(state.viewYear, state.viewMonth);
   }
+}
+
+document.getElementById('prevMonth').addEventListener('click', () => {
+  state.viewMonth--;
+  if (state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
+  _afterCalendarMonthChange();
 });
 document.getElementById('nextMonth').addEventListener('click', () => {
   state.viewMonth++;
   if (state.viewMonth > 11) { state.viewMonth = 0; state.viewYear++; }
-  renderCalendar();
-  syncPanelHeight();
-  refreshYogaDropdownIfOpen();
-  refreshTransitDropdownIfOpen();
-  fetchMonthPanchanga(state.viewYear, state.viewMonth);
-  if (state.viewMode === 'schedule') {
-    renderScheduleView();
-    if (_gcalConnected) _loadGcalEventsForMonth(state.viewYear, state.viewMonth);
-  }
+  _afterCalendarMonthChange();
 });
+
+// ─── MONTH / YEAR JUMP-TO DROPDOWNS ───────────────────────────────────────────
+// Populate the two <select>s once; renderCalendar() just syncs their .value
+// afterwards (via _syncCalTitleSelects) rather than rebuilding the options.
+(function _initCalTitleSelects() {
+  const monthSel = document.getElementById('calMonthSelect');
+  const yearSel  = document.getElementById('calYearSelect');
+  if (!monthSel || !yearSel) return;
+
+  const monthNamesShort = ['January','February','March','April','May','June',
+                            'July','August','September','October','November','December'];
+  monthSel.innerHTML = monthNamesShort
+    .map((name, i) => `<option value="${i}">${name}</option>`)
+    .join('');
+
+  // ±10 years around "now". The current viewYear is added too in case it
+  // ever falls outside this window, so the dropdown can never show a value
+  // that isn't actually one of its own options.
+  const nowYear = new Date().getFullYear();
+  const minYear = Math.min(nowYear - 10, state.viewYear);
+  const maxYear = Math.max(nowYear + 10, state.viewYear);
+  let yearOptions = '';
+  for (let y = minYear; y <= maxYear; y++) yearOptions += `<option value="${y}">${y}</option>`;
+  yearSel.innerHTML = yearOptions;
+
+  monthSel.addEventListener('change', () => {
+    state.viewMonth = parseInt(monthSel.value, 10);
+    _afterCalendarMonthChange();
+  });
+  yearSel.addEventListener('change', () => {
+    state.viewYear = parseInt(yearSel.value, 10);
+    _afterCalendarMonthChange();
+  });
+})();
+
+function _syncCalTitleSelects(viewYear, viewMonth) {
+  const monthSel = document.getElementById('calMonthSelect');
+  const yearSel  = document.getElementById('calYearSelect');
+  if (monthSel && monthSel.value !== String(viewMonth)) monthSel.value = String(viewMonth);
+  if (yearSel) {
+    // Guard against a viewYear landing outside the pre-built range (e.g. if
+    // someone programmatically jumps far via Today/other navigation) by
+    // growing the option list on demand rather than silently failing to
+    // select anything.
+    if (!yearSel.querySelector(`option[value="${viewYear}"]`)) {
+      const existingYears = Array.from(yearSel.options, o => parseInt(o.value, 10));
+      const minYear = Math.min(...existingYears, viewYear);
+      const maxYear = Math.max(...existingYears, viewYear);
+      let yearOptions = '';
+      for (let y = minYear; y <= maxYear; y++) yearOptions += `<option value="${y}">${y}</option>`;
+      yearSel.innerHTML = yearOptions;
+    }
+    if (yearSel.value !== String(viewYear)) yearSel.value = String(viewYear);
+  }
+}
 
 // ─── EVENT POPUP ENGINE ───────────────────────────────────────────────────────
 // Palette intentionally limited to five recognizable colors so the schedule
@@ -5259,8 +5395,13 @@ function renderTransitDropdown() {
     return;
   }
 
-  const inRange = transits.filter(t => t.inRange);
-  const future  = transits.filter(t => !t.inRange);
+  // ISO-formatted dates (YYYY-MM-DDTHH:mm:ss) sort correctly as plain
+  // strings, so this orders transits chronologically regardless of which
+  // planet they belong to or what order they came back from the API in.
+  const byDate = (a, b) => (a.transitLocal ?? a.transitUTC).localeCompare(b.transitLocal ?? b.transitUTC);
+
+  const inRange = transits.filter(t => t.inRange).sort(byDate);
+  const future  = transits.filter(t => !t.inRange).sort(byDate);
 
   let html = '';
 

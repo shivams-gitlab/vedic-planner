@@ -2434,18 +2434,35 @@ function _gcalTokenValid() {
   return _gcalToken && Date.now() < _gcalTokenExp - 60_000; // 60s buffer
 }
 
+// Generates a random, unguessable string to use as the OAuth `state` value —
+// protects the flow against CSRF: an attacker who tricks a victim's browser
+// into completing a Google auth redirect they didn't initiate would produce
+// a response whose state we never generated, so we can detect and reject it.
+function _generateGcalState() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // Request a token. prompt='' → silent (no popup); prompt='consent' → interactive.
 // Returns a Promise that resolves when the token callback fires.
 function _requestToken(prompt = '') {
   return new Promise((resolve, reject) => {
     if (!_tokenClient) { reject(new Error('GIS not loaded')); return; }
+    const expectedState = _generateGcalState();
     _tokenClient.callback = (resp) => {
       if (resp.error) { reject(new Error(resp.error)); return; }
+      // Reject any response that doesn't carry back the exact state value
+      // we generated for this specific request.
+      if (resp.state !== expectedState) {
+        reject(new Error('state_mismatch'));
+        return;
+      }
       _gcalToken    = resp.access_token;
       _gcalTokenExp = Date.now() + resp.expires_in * 1000;
       resolve();
     };
-    _tokenClient.requestAccessToken({ prompt });
+    _tokenClient.requestAccessToken({ prompt, state: expectedState });
   });
 }
 
